@@ -1,12 +1,18 @@
 package com.antoniofarias.investmentapp.service;
 
+import com.antoniofarias.investmentapp.dto.CreateAccountDto;
 import com.antoniofarias.investmentapp.dto.CreateUserDto;
 import com.antoniofarias.investmentapp.dto.UpdateUserDto;
+import com.antoniofarias.investmentapp.entity.Account;
 import com.antoniofarias.investmentapp.entity.User;
+import com.antoniofarias.investmentapp.repository.AccountRepository;
 import com.antoniofarias.investmentapp.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,8 +22,13 @@ public class UserService {
 
     private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private AccountRepository accountRepository;
+
+    public UserService(UserRepository userRepository,
+                       AccountRepository accountRepository) {
+
         this.userRepository = userRepository;
+        this.accountRepository = accountRepository;
     }
 
     public UUID createUser(CreateUserDto createUserDto) {
@@ -60,5 +71,21 @@ public class UserService {
         if (userExists) {
             userRepository.deleteById(id);
         }
+    }
+
+    public void createAccount(String userId, CreateAccountDto createAccountDto) {
+
+        var user = userRepository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // DTO -> ENTITY
+        var account = new Account(
+                UUID.randomUUID(),
+                user,
+                createAccountDto.description(),
+                new ArrayList<>()
+        );
+
+        var accountCreated = accountRepository.save(account);
     }
 }

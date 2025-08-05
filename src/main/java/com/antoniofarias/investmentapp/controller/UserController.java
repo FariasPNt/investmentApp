@@ -1,5 +1,6 @@
 package com.antoniofarias.investmentapp.controller;
 
+import com.antoniofarias.investmentapp.dto.CreateAccountDto;
 import com.antoniofarias.investmentapp.dto.CreateUserDto;
 import com.antoniofarias.investmentapp.dto.UpdateUserDto;
 import com.antoniofarias.investmentapp.entity.User;
@@ -51,4 +52,14 @@ public class UserController {
         userService.deleteById(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{userId}/account")
+    public ResponseEntity<Void> createAccount(@PathVariable("userId") String userId,
+                                              @RequestBody CreateAccountDto createAccountDto){
+        userService.createAccount(userId, createAccountDto);
+        return ResponseEntity.ok().build();
+
+    }
+
+
 }
