@@ -1,5 +1,6 @@
 package com.antoniofarias.investmentapp.service;
 
+import com.antoniofarias.investmentapp.dto.AccountResponseDto;
 import com.antoniofarias.investmentapp.dto.CreateAccountDto;
 import com.antoniofarias.investmentapp.dto.CreateUserDto;
 import com.antoniofarias.investmentapp.dto.UpdateUserDto;
@@ -80,12 +81,21 @@ public class UserService {
 
         // DTO -> ENTITY
         var account = new Account(
-                UUID.randomUUID(),
                 user,
                 createAccountDto.description(),
                 new ArrayList<>()
         );
 
         var accountCreated = accountRepository.save(account);
+    }
+
+    public List<AccountResponseDto> listAccounts(String userId) {
+        var user = userRepository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        return user.getAccounts()
+                .stream()
+                .map(ac -> new AccountResponseDto(ac.getAccountId().toString(), ac.getDescription()))
+                .toList();
     }
 }

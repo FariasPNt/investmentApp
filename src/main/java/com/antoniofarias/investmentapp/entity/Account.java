@@ -33,6 +33,12 @@ public class Account {
         this.accountId = accountId;
     }
 
+    public Account(User user, String description, List<AccountStock> accountStock) {
+        this.user = user;
+        this.description = description;
+        this.accountStock = accountStock;
+    }
+
     public Account(UUID accountId, User user, String description, List<AccountStock> accountStock) {
         this.accountId = accountId;
         this.user = user;
@@ -62,5 +68,13 @@ public class Account {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<AccountStock> getAccountStock() {
+        return accountStock;
+    }
+
+    public void setAccountStock(List<AccountStock> accountStock) {
+        this.accountStock = accountStock;
     }
 }

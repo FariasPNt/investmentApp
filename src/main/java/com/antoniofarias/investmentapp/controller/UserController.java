@@ -1,8 +1,10 @@
 package com.antoniofarias.investmentapp.controller;
 
+import com.antoniofarias.investmentapp.dto.AccountResponseDto;
 import com.antoniofarias.investmentapp.dto.CreateAccountDto;
 import com.antoniofarias.investmentapp.dto.CreateUserDto;
 import com.antoniofarias.investmentapp.dto.UpdateUserDto;
+import com.antoniofarias.investmentapp.entity.Account;
 import com.antoniofarias.investmentapp.entity.User;
 import com.antoniofarias.investmentapp.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -53,11 +55,18 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{userId}/account")
+    @PostMapping("/{userId}/accounts")
     public ResponseEntity<Void> createAccount(@PathVariable("userId") String userId,
                                               @RequestBody CreateAccountDto createAccountDto){
         userService.createAccount(userId, createAccountDto);
         return ResponseEntity.ok().build();
+
+    }
+
+    @GetMapping("/{userId}/accounts")
+    public ResponseEntity<List<AccountResponseDto>> getAllAccount(@PathVariable("userId") String userId){
+        var accounts = userService.listAccounts(userId);
+        return ResponseEntity.ok(accounts);
 
     }
 
