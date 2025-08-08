@@ -3,7 +3,7 @@ name: "Terraform Workflow"
 on:
   workflow_call:
     inputs:
-      enviroment:
+      environment:
         type: string
         required: true
       aws-assume-role-arn:
@@ -48,7 +48,7 @@ jobs:
           -backend-config="bucket=${{ inputs.aws-statefile-s3-bucket }}" \
           -backend-config="key=${{ github.event.repository.name }}" \
           -backend-config="region=${{ inputs.aws-region }}" \
-          -backend-config="dynamodb_table=${{ inputs.aws-lock-dynamo-table }}"
+          -backend-config="dynamodb_table=${{ inputs.aws-lock-dynamodb-table }}"
 
       - name: Terraform Validate
         run: terraform validate
@@ -62,5 +62,5 @@ jobs:
       - name: Terraform Apply
         id: terraform-id
         run: cd infra &&
-          terraform workspace select ${{ inputs.enviroment }} || terraform workspace new ${{ inputs.environment }} &&
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }} &&
           terraform apply "${{ inputs.environment }}.plan"
