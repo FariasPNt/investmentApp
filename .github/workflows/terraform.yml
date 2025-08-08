@@ -43,24 +43,35 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
 
       - name: Terraform Init
-        run:
-          cd infra && terraform init \
-          -backend-config="bucket=${{ inputs.aws-statefile-s3-bucket }}" \
-          -backend-config="key=${{ github.event.repository.name }}" \
-          -backend-config="region=${{ inputs.aws-region }}" \
-          -backend-config="dynamodb_table=${{ inputs.aws-lock-dynamodb-table }}"
+        working-directory: infra
+        run: |
+            set -euo pipefail
+            terraform init \
+              -backend-config="bucket=${{ inputs.aws-statefile-s3-bucket }}" \
+              -backend-config="key=${{ github.event.repository.name }}/terraform.tfstate" \
+              -backend-config="region=${{ inputs.aws-region }}" \
+              -backend-config="dynamodb_table=${{ inputs.aws-lock-dynamodb-table }}"
+      
 
       - name: Terraform Validate
+        working-directory: infra
         run: terraform validate
 
       - name: Terraform Plan
         id: terraform-plan
-        run: cd infra &&
-          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }} &&
-          terraform plan -var-file="./envs/${{ inputs.environment }}/terraform.tfvars" -out="${{ inputs.environment }}.plan"
+        working-directory: infra
+        run: |
+          set -euo pipefail
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+          terraform plan \
+            -var-file="./envs/${{ inputs.environment }}/terraform.tfvars" \
+            -out="${{ inputs.environment }}.plan"
+      
 
       - name: Terraform Apply
         id: terraform-id
-        run: cd infra &&
-          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }} &&
-          terraform apply "${{ inputs.environment }}.plan"
+        working-directory: infra
+        run: |
+          set -euo pipefail
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+          terraform apply -auto-approve "${{ inputs.environment }}.plan"
